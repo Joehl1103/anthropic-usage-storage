@@ -1,0 +1,35 @@
+# Data files - never push
+*.csv
+*.xlsx
+*.db
+
+# Environment
+.env
+.env.*
+
+# Worktrees
+.worktrees/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Input/output directories
+input/
+output/
