@@ -50,11 +50,50 @@ python3 -m src.collect --report daily
 python3 -m src.collect --report overage
 ```
 
-### Cron scheduling
+### Scheduling with Cron
+
+Cron is a built-in macOS/Linux scheduler that runs commands on a repeating schedule. Each line in your crontab defines a job with a time pattern and a command.
+
+#### Cron expression format
+
+```
+┌───────────── minute (0–59)
+│ ┌─────────── hour (0–23)
+│ │ ┌───────── day of month (1–31)
+│ │ │ ┌─────── month (1–12)
+│ │ │ │ ┌───── day of week (0–6, Sun=0)
+│ │ │ │ │
+* * * * *  command
+```
+
+#### How to set up
+
+1. Open your crontab in the terminal:
+   ```bash
+   crontab -e
+   ```
+
+2. Add one of the following lines (replace the path and API key with yours):
+
+   ```bash
+   # Hourly collection (recommended) — runs at the top of every hour
+   0 * * * * cd /path/to/anthropic-usage-storage && ANTHROPIC_ADMIN_API_KEY="sk-ant-admin-..." python3 -m src.collect >> /var/log/anthropic-usage.log 2>&1
+
+   # Daily collection — runs at 2:15 AM with daily buckets and 48h lookback
+   15 2 * * * cd /path/to/anthropic-usage-storage && ANTHROPIC_ADMIN_API_KEY="sk-ant-admin-..." python3 -m src.collect --bucket-width 1d --lookback 48 >> /var/log/anthropic-usage.log 2>&1
+   ```
+
+3. Save and exit. Verify your crontab was saved:
+   ```bash
+   crontab -l
+   ```
+
+#### Exit code alerting
+
+The tool returns exit code 2 when plan limits are exceeded. You can capture this in your cron job to create a separate alert log:
 
 ```bash
-# Hourly pull (recommended)
-0 * * * * cd /path/to/anthropic-usage-storage && python3 -m src.collect >> /var/log/anthropic-usage.log 2>&1
+0 * * * * cd /path/to/anthropic-usage-storage && ANTHROPIC_ADMIN_API_KEY="sk-ant-admin-..." python3 -m src.collect >> /var/log/anthropic-usage.log 2>&1 || echo "$(date): Usage alert exit code $?" >> /var/log/anthropic-alerts.log
 ```
 
 ## Exit codes
